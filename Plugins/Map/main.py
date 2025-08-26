@@ -63,7 +63,7 @@ class Plugin(ETS2LAPlugin):
         name=_("Map"),
         description=_("This plugin provides steering and navigation features. It is the most important plugin in ETS2LA."),
         version="2.0.0",
-        modules=["SDKController", "TruckSimAPI", "Steering", "Route"],
+        modules=["SDKController", "TruckSimAPI", "Steering", "Route", "Moza"],
         tags=["Base", "Steering"],
         ui_filename="ui.py",
         fps_cap=20
@@ -201,10 +201,11 @@ class Plugin(ETS2LAPlugin):
             data.controller = self.modules.SDKController.SCSController()
             data.plugin = self
 
-            global api, steering
+            global api, steering, moza
             api = self.modules.TruckSimAPI
             api.TRAILER = True
             steering = self.modules.Steering
+            moza = self.modules.Moza
             steering.OFFSET = 0
             steering.SMOOTH_TIME = self.steering_smoothness
             steering.IGNORE_SMOOTH = False
@@ -303,6 +304,10 @@ class Plugin(ETS2LAPlugin):
                         steering_value = -0.95
 
                     steering.run(value=steering_value, sendToGame=data.enabled, drawLine=False)
+                    try:
+                        moza.run(steering_value * 900)
+                    except Exception:
+                        logging.exception("Failed to update Moza wheel")
                 else:
                     logging.warning(_("Invalid steering value received"))
 
